@@ -1,7 +1,9 @@
-﻿namespace OpenTracing.Contrib.DynamicTracing
+﻿namespace OpenTracing.Contrib.DynamicInstrumentation.OpenTracing.Extensions
 {
     using System;
     using System.Collections.Generic;
+
+    using global::OpenTracing.Contrib.DynamicInstrumentation.OpenTracing.Semantics;
 
     using JetBrains.Annotations;
 

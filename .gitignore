@@ -73,6 +73,10 @@ artifacts/
 *.svclog
 *.scc
 
+# Binaries are evil
+*.dll
+*.pdb
+
 # Chutzpah Test files
 _Chutzpah*
 

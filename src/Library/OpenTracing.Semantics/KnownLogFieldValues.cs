@@ -1,4 +1,4 @@
-﻿namespace OpenTracing.Contrib.DynamicTracing
+﻿namespace OpenTracing.Contrib.DynamicInstrumentation.OpenTracing.Semantics
 {
     internal static class KnownLogFieldValues
     {

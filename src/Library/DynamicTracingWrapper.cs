@@ -1,4 +1,4 @@
-﻿namespace OpenTracing.Contrib.DynamicTracing
+﻿namespace OpenTracing.Contrib.DynamicInstrumentation
 {
     using System;
     using System.Collections.Generic;
@@ -7,9 +7,10 @@
 
     using Castle.DynamicProxy;
 
-    using JetBrains.Annotations;
+    using global::OpenTracing.Contrib.DynamicInstrumentation.OpenTracing.Extensions;
+    using global::OpenTracing.Util;
 
-    using OpenTracing.Util;
+    using JetBrains.Annotations;
 
     /// <summary>
     ///     Dynamically wraps an interface with tracing
