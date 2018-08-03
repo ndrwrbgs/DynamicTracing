@@ -40,7 +40,7 @@
                 bool includeClassName = true,
                 bool logResult = false)
                 : this (
-                    useArgumentsAsTags ? new Func<ParameterInfo, object, string>((paramInfo, value) => value?.ToString()) : null,
+                    useArgumentsAsTags ? new Func<object, string>((value) => value?.ToString()) : null,
                     logResult ? new Func<object, string>((value) => value?.ToString()) : null,
                     wrapInterfaces,
                     recursivelyWrapInterfaces,
@@ -51,8 +51,7 @@
             /// <param name="formatArgumentForTag">If null, arguments will not be set as tags on the spans</param>
             /// <param name="formatResultForTag">If null, result value will not be set as tags on the spans</param>
             public TracingInterceptorOptions(
-                Func<ParameterInfo, object, string> formatArgumentForTag,
-                // TODO: Should provide a way they can use the Type too. Probably need to move this into it's own type as it's logic is growing quickly
+                Func<object, string> formatArgumentForTag,
                 Func<object, string> formatResultForTag,
                 bool wrapInterfaces = false,
                 bool recursivelyWrapInterfaces = false,
@@ -74,7 +73,7 @@
             public bool WrapInterfaces { get; }
             public bool RecursivelyWrapInterfaces { get; }
             public bool IncludeClassName { get; }
-            public Func<ParameterInfo, object, string> FormatArgumentForTag;
+            public Func<object, string> FormatArgumentForTag;
         }
 
         private sealed class TracingIntercepter : AsyncInterceptorBase
@@ -119,7 +118,7 @@
                     for (int i = 0; i < parameterInfos.Length; i++)
                     {
                         var param = parameterInfos[i];
-                        var formattedValue = this.options.FormatArgumentForTag(param, invocation.Arguments[i]);
+                        var formattedValue = this.options.FormatArgumentForTag(invocation.Arguments[i]);
                         spanBuilder.WithTag(param.Name, formattedValue);
                     }
                 }
