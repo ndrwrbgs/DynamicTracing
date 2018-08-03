@@ -32,30 +32,48 @@
 
         public sealed class TracingInterceptorOptions
         {
+            [Obsolete("Use the format with the Func")]
             public TracingInterceptorOptions(
                 bool useArgumentsAsTags,
                 bool wrapInterfaces = false,
                 bool recursivelyWrapInterfaces = false,
                 bool includeClassName = true,
                 bool logResult = false)
+                : this (
+                    useArgumentsAsTags ? new Func<object, string>((value) => value?.ToString()) : null,
+                    logResult ? new Func<object, string>((value) => value?.ToString()) : null,
+                    wrapInterfaces,
+                    recursivelyWrapInterfaces,
+                    includeClassName)
+            {
+            }
+
+            /// <param name="formatArgumentForTag">If null, arguments will not be set as tags on the spans</param>
+            /// <param name="formatResultForTag">If null, result value will not be set as tags on the spans</param>
+            public TracingInterceptorOptions(
+                Func<object, string> formatArgumentForTag,
+                Func<object, string> formatResultForTag,
+                bool wrapInterfaces = false,
+                bool recursivelyWrapInterfaces = false,
+                bool includeClassName = true)
             {
                 if (recursivelyWrapInterfaces && !wrapInterfaces)
                 {
                     throw new ArgumentException("If you're not wrapping interfaces, you can't recursively wrap interfaces.");
                 }
 
-                this.UseArgumentsAsTags = useArgumentsAsTags;
+                this.FormatArgumentForTag = formatArgumentForTag;
+                this.FormatResultForTag = formatResultForTag;
                 this.WrapInterfaces = wrapInterfaces;
                 this.RecursivelyWrapInterfaces = recursivelyWrapInterfaces;
                 this.IncludeClassName = includeClassName;
-                this.LogResult = logResult;
             }
 
-            public bool UseArgumentsAsTags { get; }
+            public Func<object, string> FormatResultForTag { get; }
             public bool WrapInterfaces { get; }
             public bool RecursivelyWrapInterfaces { get; }
             public bool IncludeClassName { get; }
-            public bool LogResult { get; }
+            public Func<object, string> FormatArgumentForTag;
         }
 
         private sealed class TracingIntercepter : AsyncInterceptorBase
@@ -94,14 +112,14 @@
                 var spanBuilder = GlobalTracer.Instance
                     .BuildSpan(operationName);
 
-                if (this.options.UseArgumentsAsTags)
+                if (this.options.FormatArgumentForTag != null)
                 {
                     ParameterInfo[] parameterInfos = invocation.Method.GetParameters();
                     for (int i = 0; i < parameterInfos.Length; i++)
                     {
                         var param = parameterInfos[i];
-                        // TODO: Should these use json instead?
-                        spanBuilder.WithTag(param.Name, invocation.Arguments[i]?.ToString());
+                        var formattedValue = this.options.FormatArgumentForTag(invocation.Arguments[i]);
+                        spanBuilder.WithTag(param.Name, formattedValue);
                     }
                 }
 
@@ -112,12 +130,13 @@
                             var result = await proceed(invocation)
                                 .ConfigureAwait(false);
 
-                            if (this.options.LogResult)
+                            if (this.options.FormatResultForTag != null)
                             {
+                                var formattedResult = this.options.FormatResultForTag(result);
                                 span.Log(
                                     new Dictionary<string, object>(1)
                                     {
-                                        ["result"] = result
+                                        ["result"] = formattedResult
                                     });
                             }
 
@@ -146,9 +165,10 @@
                             if (!this.options.RecursivelyWrapInterfaces)
                             {
                                 newOptions = new TracingInterceptorOptions(
-                                    this.options.UseArgumentsAsTags,
-                                    false,
-                                    false);
+                                    this.options.FormatArgumentForTag,
+                                    this.options.FormatResultForTag,
+                                    wrapInterfaces: false,
+                                    recursivelyWrapInterfaces: false);
                             }
 
                             var newResult = WrapInterfaceWithTracingAdapter<TResult>(
