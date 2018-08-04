@@ -5,8 +5,8 @@ msbuild %~dp0\..\src\Library\Library.csproj /p:Configuration=Release /v:m
 
 REM exit if if failed
 if %errorlevel% neq 0 exit /b %errorlevel%
-xcopy /Y %~dp0\..\src\Library\bin\Release\net4.5.1\OpenTracing.Contrib.DynamicInstrumentation.dll %~dp0\lib\net45
-xcopy /Y %~dp0\..\src\Library\bin\Release\net4.5.1\OpenTracing.Contrib.DynamicInstrumentation.pdb %~dp0\lib\net45
+xcopy /Y %~dp0\..\src\Library\bin\Release\net4.5\OpenTracing.Contrib.DynamicInstrumentation.dll %~dp0\lib\net45
+xcopy /Y %~dp0\..\src\Library\bin\Release\net4.5\OpenTracing.Contrib.DynamicInstrumentation.pdb %~dp0\lib\net45
 
 echo.
 echo.
