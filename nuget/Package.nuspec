@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OpenTracing.Contrib.DynamicInstrumentation</id>
-    <version>0.6</version>
+    <version>0.7</version>
     <authors>ndrwrbgs</authors>
     <owners>ndrwrbgs</owners>
     <licenseUrl>https://github.com/ndrwrbgs/DynamicTracing/blob/master/LICENSE</licenseUrl>
@@ -10,7 +10,7 @@
     <iconUrl>http://opentracing.io/img/favicon-32x32.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Dynamically wrap interfaces with OpenTracing instrumentation</description>
-    <releaseNotes>More liberal package versions</releaseNotes>
+    <releaseNotes>Add ability to transform the spanbuilder before it is created, e.g. for ICommand.Execute</releaseNotes>
     <copyright>Copyright 2018</copyright>
     <tags>Castle OpenTracing Dynamic Wrapper Instrumentation</tags>
     <dependencies>
