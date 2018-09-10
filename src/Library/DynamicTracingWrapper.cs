@@ -30,6 +30,26 @@
                 new TracingIntercepter(options));
         }
 
+        /// <summary>
+        /// <see cref="WrapInterfaceWithTracingAdapter{TInterface}(object,TracingInterceptorOptions)"/>,
+        /// but with the ability to modify the <see cref="ISpanBuilder"/> before <see cref="ISpanBuilder.Start"/> is called.
+        /// .
+        /// Standard use case: `IRunnable interface` with `Run` method. Wrapping Run is wonderful, but it does not
+        /// have all the information that would be useful if the user instead called `static Runner.Run(string command)`.
+        /// Capturing that kind of state of the <paramref name="instance"/> can be useful.
+        /// </summary>
+        public static TInterface WrapInterfaceWithTracingAdapter<TInterface>(
+            this object instance,
+            TracingInterceptorOptions options,
+            Func<ISpanBuilder, ISpanBuilder> spanBuilderTransform)
+        {
+            return (TInterface)ProxyGenerator.CreateInterfaceProxyWithTargetInterface(
+                typeof(TInterface),
+                instance,
+                ProxyGenerationOptions.Default,
+                new TracingIntercepter(options, spanBuilderTransform));
+        }
+
         public sealed class TracingInterceptorOptions
         {
             [Obsolete("Use the format with the Func")]
@@ -73,16 +93,20 @@
             public bool WrapInterfaces { get; }
             public bool RecursivelyWrapInterfaces { get; }
             public bool IncludeClassName { get; }
-            public Func<object, string> FormatArgumentForTag;
+            public Func<object, string> FormatArgumentForTag { get; }
         }
 
         private sealed class TracingIntercepter : AsyncInterceptorBase
         {
             private readonly TracingInterceptorOptions options;
+            private readonly Func<ISpanBuilder, ISpanBuilder> spanBuilderTransform;
 
-            public TracingIntercepter(TracingInterceptorOptions options)
+            public TracingIntercepter(
+                TracingInterceptorOptions options,
+                Func<ISpanBuilder, ISpanBuilder> spanBuilderTransform = null)
             {
                 this.options = options;
+                this.spanBuilderTransform = spanBuilderTransform;
             }
 
             protected override async Task InterceptAsync([NotNull] IInvocation invocation, Func<IInvocation, Task> proceed)
@@ -121,6 +145,11 @@
                         var formattedValue = this.options.FormatArgumentForTag(invocation.Arguments[i]);
                         spanBuilder.WithTag(param.Name, formattedValue);
                     }
+                }
+
+                if (this.spanBuilderTransform != null)
+                {
+                    spanBuilder = this.spanBuilderTransform(spanBuilder);
                 }
 
                 return await spanBuilder
