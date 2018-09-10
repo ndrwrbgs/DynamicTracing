@@ -7,7 +7,7 @@
 
     using Castle.DynamicProxy;
 
-    using global::OpenTracing.Contrib.DynamicInstrumentation.OpenTracing.Extensions;
+    using global::OpenTracing.Contrib.SemanticConventions;
     using global::OpenTracing.Util;
 
     using JetBrains.Annotations;

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>OpenTracing.Contrib.DynamicInstrumentation</id>
-    <version>0.7</version>
+    <version>0.8</version>
     <authors>ndrwrbgs</authors>
     <owners>ndrwrbgs</owners>
     <licenseUrl>https://github.com/ndrwrbgs/DynamicTracing/blob/master/LICENSE</licenseUrl>
@@ -14,7 +14,8 @@
     <copyright>Copyright 2018</copyright>
     <tags>Castle OpenTracing Dynamic Wrapper Instrumentation</tags>
     <dependencies>
-      <dependency id="OpenTracing" version="0.11.0" />
+      <dependency id="OpenTracing" version="0.12.0" />
+      <dependency id="OpenTracing.Contrib.SemanticConventions" version="0.1.0" />
       <dependency id="Castle.Core.AsyncInterceptor" version="1.4.0" />
       <dependency id="Castle.Core" version="4.1.0" />
     </dependencies>
